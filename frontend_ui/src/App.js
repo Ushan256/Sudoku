@@ -21,8 +21,9 @@ function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [showVictory, setShowVictory] = useState(false); 
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+  const [darkMode, setDarkMode] = useState(true);
+  const [hintedCell, setHintedCell] = useState(null);
 
-  // Track window size for responsive UI
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth <= 768);
     window.addEventListener('resize', handleResize);
@@ -72,12 +73,7 @@ function App() {
           copy[idx] = { ...current, time: finalTime };
         }
       }
-      return copy.sort((a, b) => {
-        if (b.best !== a.best) return b.best - a.best;
-        const at = a.time ?? Infinity;
-        const bt = b.time ?? Infinity;
-        return at - bt;
-      });
+      return copy.sort((a, b) => (b.best !== a.best) ? b.best - a.best : (a.time ?? Infinity) - (b.time ?? Infinity));
     });
   }, []);
 
@@ -101,23 +97,32 @@ function App() {
       setTimer(0); setScore(0); setMistakes(0);
       setIsPaused(false); setIsGameEnded(false); setShowVictory(false);
       setGameStarted(true); 
-      showToast(`Level ${difficulty} Loaded`);
+      showToast(`Level Initialized`);
     } catch (err) { showToast("Backend Offline!"); }
   }, [difficulty, isLoggedIn]);
 
+  // NEW: NATIVE KEYBOARD INPUT HANDLER
   const handleInput = useCallback((row, col, value) => {
     if (!gameStarted || isGameEnded || isPaused || initialGrid[row][col] !== 0) return;
-    const isCorrect = value === solution[row][col];
+    
+    // Get last char entered (numeric keypad support)
+    const lastChar = value.slice(-1);
+    const num = parseInt(lastChar);
+    
+    if (isNaN(num) || num === 0) return;
+
+    const isCorrect = num === solution[row][col];
     const newGrid = [...grid];
-    newGrid[row][col] = value;
+    newGrid[row][col] = num;
     setGrid(newGrid);
+
     if (isCorrect) {
       setScore(prev => prev + 100);
-      showToast("Correct! +100");
+      showToast("Correct!");
     } else {
       setScore(prev => prev - 25);
       setMistakes(prev => prev + 1); 
-      showToast("Incorrect! -25");
+      showToast("Error Detected");
     }
   }, [gameStarted, isGameEnded, isPaused, initialGrid, solution, grid]);
 
@@ -127,45 +132,35 @@ function App() {
       const res = await axios.post(`${API_BASE}/hint?row=${selected.r}&col=${selected.c}`, { grid });
       const n = [...grid];
       n[selected.r][selected.c] = res.data.value;
+      setHintedCell(`${selected.r}-${selected.c}`);
       setGrid(n);
       setScore(prev => prev - 50);
-      showToast("AI Hint Used (-50)");
+      showToast("AI Hint Used");
+      setTimeout(() => setHintedCell(null), 1500);
     } catch (err) { showToast("Hint Error"); }
   }, [selected, grid, isGameEnded, isPaused, gameStarted]);
 
   const solveAll = useCallback(async () => {
     if (!gameStarted || isGameEnded) return;
     try {
-      let emptyCells = 0;
-      grid.forEach(row => row.forEach(cell => { if (cell === 0) emptyCells++; }));
       setGrid(solution);
       setIsGameEnded(true);
-      const aiPenalty = emptyCells * 150;
-      const finalScore = score - aiPenalty;
-      setScore(finalScore);
-      updateBestScore(finalScore, user, timer);
       setShowVictory(true); 
+      updateBestScore(score - 500, user, timer);
     } catch (err) { showToast("AI Solve Error"); }
-  }, [grid, solution, isGameEnded, gameStarted, score, user, updateBestScore, timer]);
+  }, [solution, gameStarted, isGameEnded, score, user, timer, updateBestScore]);
 
   const handleKeyDown = useCallback((e) => {
     if (!isLoggedIn || showVictory) return;
     if (e.key === 'n') fetchNewGame();
-    if (!gameStarted) return;
-    if (e.key === 'p') setIsPaused(prev => !prev);
-    if (e.key === 'h') getHint();
-    if (e.key === 'a') solveAll(); 
-    if (isPaused || isGameEnded) return;
+    if (!gameStarted || isPaused || isGameEnded) return;
     const { r, c } = selected;
     if (e.key === 'ArrowUp') setSelected({ r: Math.max(0, r - 1), c });
     if (e.key === 'ArrowDown') setSelected({ r: Math.min(8, r + 1), c });
     if (e.key === 'ArrowLeft') setSelected({ r, c: Math.max(0, c - 1) });
     if (e.key === 'ArrowRight') setSelected({ r, c: Math.min(8, c + 1) });
-    if (/[1-9]/.test(e.key)) handleInput(r, c, parseInt(e.key));
-    if (e.key === 'Backspace' && initialGrid[r][c] === 0) {
-        const n = [...grid]; n[r][c] = 0; setGrid(n);
-    }
-  }, [isLoggedIn, showVictory, fetchNewGame, gameStarted, isPaused, getHint, solveAll, isGameEnded, selected, handleInput, initialGrid, grid]);
+    if (/[1-9]/.test(e.key)) handleInput(r, c, e.key);
+  }, [isLoggedIn, showVictory, fetchNewGame, gameStarted, isPaused, isGameEnded, selected, handleInput]);
 
   useEffect(() => {
     window.addEventListener('keydown', handleKeyDown);
@@ -181,7 +176,7 @@ function App() {
   }, [isPaused, isGameEnded, gameStarted]);
 
   return (
-    <div className="app-shell">
+    <div className={`app-shell ${!darkMode ? 'light-mode' : ''}`}>
       {!isLoggedIn && (
         <div className="login-overlay">
           <form className="login-card" onSubmit={handleLogin}>
@@ -196,11 +191,6 @@ function App() {
         <div className="victory-overlay">
           <div className="victory-card">
             <h1 className="pink">VICTORY</h1>
-              <div className="stats-box-modal">
-                <p>PLAYER: <span className="blue">{user}</span></p>
-                <p>SCORE: <span className="blue">{score}</span></p>
-                <p>TIME: <span className="blue">{Math.floor(timer/60)}m {timer%60}s</span></p>
-              </div>
             <button className="btn" onClick={fetchNewGame}>PLAY AGAIN</button>
           </div>
         </div>
@@ -210,14 +200,19 @@ function App() {
         <div className="sidebar-header">
           <h2>ID: {user}</h2>
           <span className="switch-link" onClick={handleSwitchUser}>SWITCH USER</span>
+          <div className="theme-toggle">
+            <label className="switch">
+              <input type="checkbox" checked={!darkMode} onChange={() => setDarkMode(!darkMode)} />
+              <span className="slider"></span>
+            </label>
+          </div>
         </div>
 
         {!isMobile && (
           <section className="instruct-box">
-            <h3>INSTRUCTIONS</h3>
+            <h3>KEYBOARD</h3>
             <ul>
               <li><b>[N]</b> New Puzzle</li>
-              <li><b>[P]</b> Pause Game</li>
               <li><b>[H]</b> AI Hint</li>
               <li><b>[A]</b> AI Solve All</li>
             </ul>
@@ -225,19 +220,19 @@ function App() {
         )}
         
         <section className="difficulty-box">
-          <h3>LEVEL SELECT</h3>
+          <h3>DIFFICULTY</h3>
           <select className="diff-select" value={difficulty} onChange={(e) => setDifficulty(parseInt(e.target.value))}>
-            <option value={10}>Very Easy</option>
-            <option value={30}>Easy</option>
-            <option value={45}>Medium</option>
+            <option value={20}>Very Easy</option>
+            <option value={40}>Normal</option>
+            <option value={60}>Hard Mode</option>
           </select>
         </section>
 
         <section className="leaderboard-box">
           <h3>LEADERBOARD</h3>
           <div className="leaderboard-list">
-            {leaderboard.slice(0, 5).map((p, i) => (
-              <div key={i} className={`leaderboard-item ${p.name === user ? "current-user" : ""}`}>
+            {leaderboard.slice(0, 3).map((p, i) => (
+              <div key={i} className="leaderboard-item">
                 <span>{i+1}. {p.name}</span>
                 <span>{p.best}</span>
               </div>
@@ -255,30 +250,27 @@ function App() {
         </div>
 
         <div className="board-wrapper">
-          {!gameStarted && <div className="board-overlay">{isMobile ? "TAP 'NEW GAME'" : "PRESS [N] TO START"}</div>}
+          {!gameStarted && <div className="board-overlay">TAP 'NEW GAME'</div>}
           <div className="board" style={{ filter: (isPaused || !gameStarted || showVictory) ? 'blur(10px)' : 'none' }}>
             {grid.map((row, ri) => row.map((cell, ci) => (
                 <input
                   key={`${ri}-${ci}`}
-                  readOnly
+                  type="text"
+                  inputMode="numeric"
+                  pattern="[1-9]*"
                   className={`cell-input 
-                    ${initialGrid[ri] && initialGrid[ri][ci] !== 0 ? "fixed" : "user"} 
+                    ${initialGrid[ri][ci] !== 0 ? "fixed" : "user"} 
                     ${selected.r === ri && selected.c === ci ? "active" : ""}
+                    ${hintedCell === `${ri}-${ci}` ? "hint-pulse" : ""}
                     ${ri === 2 || ri === 5 ? "row-boundary" : ""}`}
                   value={cell || ""}
-                  onClick={() => gameStarted && setSelected({ r: ri, c: ci })}
+                  onChange={(e) => handleInput(ri, ci, e.target.value)}
+                  onFocus={() => setSelected({ r: ri, c: ci })}
+                  readOnly={initialGrid[ri][ci] !== 0}
                 />
             )))}
           </div>
         </div>
-
-        {isMobile && gameStarted && !isPaused && (
-          <div className="touch-pad">
-            {[1,2,3,4,5,6,7,8,9].map(n => (
-              <button key={n} className="num-btn" onClick={() => handleInput(selected.r, selected.c, n)}>{n}</button>
-            ))}
-          </div>
-        )}
 
         <div className="buttons-grid">
           <button className="btn" onClick={fetchNewGame}>New Game</button>
@@ -288,7 +280,7 @@ function App() {
           <button className="btn" onClick={() => {
             axios.post(`${API_BASE}/validate`, { grid }).then(r => {
               if (r.data.result === "Win") { setIsGameEnded(true); setShowVictory(true); } 
-              else { showToast(`Status: ${r.data.result}`); }
+              else { showToast(r.data.result); }
             });
           }}>Verify</button>
         </div>
