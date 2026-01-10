@@ -2,6 +2,9 @@ import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import './App.css';
 
+// THIS IS THE KEY: Your Live AI Brain Address
+const API_BASE = "https://ushan256-sudoku.hf.space";
+
 function App() {
   const [grid, setGrid] = useState(Array(9).fill(0).map(() => Array(9).fill(0)));
   const [initialGrid, setInitialGrid] = useState([]);
@@ -19,13 +22,12 @@ function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [showVictory, setShowVictory] = useState(false); 
 
-  // PERSISTENCE: Initialize leaderboard from LocalStorage
+  // PERSISTENCE: Leaderboard from LocalStorage
   const [leaderboard, setLeaderboard] = useState(() => {
     const saved = localStorage.getItem("neon_sudoku_leaderboard");
     return saved ? JSON.parse(saved) : [];
   });
 
-  // PERSISTENCE: Save to LocalStorage whenever leaderboard changes
   useEffect(() => {
     localStorage.setItem("neon_sudoku_leaderboard", JSON.stringify(leaderboard));
   }, [leaderboard]);
@@ -50,7 +52,6 @@ function App() {
     } else { showToast("Name too short!"); }
   };
 
-  // UPDATER: Functional update ensures we always have the latest leaderboard state
   const updateBestScore = useCallback((finalScore, playerName, finalTime = Infinity) => {
     setLeaderboard(prevLeaderboard => {
       const copy = [...prevLeaderboard];
@@ -62,11 +63,9 @@ function App() {
         if (finalScore > current.best) {
           copy[idx] = { ...current, best: finalScore, time: finalTime };
         } else if (finalScore === current.best && finalTime < (current.time ?? Infinity)) {
-          // equal score but faster time -> update time
           copy[idx] = { ...current, time: finalTime };
         }
       }
-      // sort by best desc (highest score first), tie-breaker: lower time first
       return copy.sort((a, b) => {
         if (b.best !== a.best) return b.best - a.best;
         const at = a.time ?? Infinity;
@@ -87,9 +86,12 @@ function App() {
   const fetchNewGame = useCallback(async () => {
     if (!isLoggedIn) return;
     try {
-      const res = await axios.get(`http://127.0.0.1:8000/generate/${difficulty}`);
+      // PROD LINK: Generate
+      const res = await axios.get(`${API_BASE}/generate/${difficulty}`);
       const newGrid = res.data.grid;
-      const solRes = await axios.post('http://127.0.0.1:8000/solve', { grid: newGrid });
+      
+      // PROD LINK: Solve
+      const solRes = await axios.post(`${API_BASE}/solve`, { grid: newGrid });
       
       setSolution(solRes.data.solution);
       setGrid(newGrid);
@@ -98,10 +100,12 @@ function App() {
       setIsPaused(false); setIsGameEnded(false); setShowVictory(false);
       setGameStarted(true); 
       showToast(`Level ${difficulty} Loaded`);
-    } catch (err) { showToast("Backend Offline!"); }
+    } catch (err) { 
+      console.error(err);
+      showToast("Backend Offline!"); 
+    }
   }, [difficulty, isLoggedIn]);
 
-  // FIX: handleInput wrapped in useCallback to satisfy dependency requirements
   const handleInput = useCallback((row, col, value) => {
     if (!gameStarted || isGameEnded || isPaused || initialGrid[row][col] !== 0) return;
     
@@ -123,7 +127,8 @@ function App() {
   const getHint = useCallback(async () => {
     if (!gameStarted || isGameEnded || isPaused || grid[selected.r][selected.c] !== 0) return;
     try {
-      const res = await axios.post(`http://127.0.0.1:8000/hint?row=${selected.r}&col=${selected.c}`, { grid });
+      // PROD LINK: Hint
+      const res = await axios.post(`${API_BASE}/hint?row=${selected.r}&col=${selected.c}`, { grid });
       const n = [...grid];
       n[selected.r][selected.c] = res.data.value;
       setGrid(n);
@@ -300,13 +305,14 @@ function App() {
           <button className="btn" onClick={fetchNewGame}>New Game</button>
           <button className="btn" onClick={getHint}>Hint</button>
           <button className="btn" onClick={() => {
-            axios.post('http://127.0.0.1:8000/validate', { grid }).then(r => {
+            // PROD LINK: Validate
+            axios.post(`${API_BASE}/validate`, { grid }).then(r => {
               if (r.data.result === "Win") {
                 setIsGameEnded(true);
                 updateBestScore(score, user, timer);
                 setShowVictory(true); 
               } else { showToast(`Status: ${r.data.result}`); }
-            });
+            }).catch(() => showToast("Validation Error"));
           }}>Verify</button>
         </div>
       </main>
