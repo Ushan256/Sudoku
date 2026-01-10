@@ -23,6 +23,7 @@ function App() {
   const [darkMode, setDarkMode] = useState(true);
   const [hintedCell, setHintedCell] = useState(null);
   const [cheatLoading, setCheatLoading] = useState(false);
+  const [resultModal, setResultModal] = useState({ open: false, type: '', message: '', score: 0 });
   // Timer increments while a game is active and not paused or ended
   useEffect(() => {
     let t = null;
@@ -67,6 +68,7 @@ function App() {
 
   const fetchNewGame = useCallback(async () => {
     if (!isLoggedIn) return;
+    if (resultModal.open) return showToast('Dismiss result to start a new game');
     try {
       const res = await axios.get(`${API_BASE}/generate/${difficulty}`);
       const solRes = await axios.post(`${API_BASE}/solve`, { grid: res.data.grid });
@@ -104,6 +106,12 @@ function App() {
       setScore(s => s - 500); // allow negative totals after full cheat
       setShowVictory(true);
       setIsGameEnded(true);
+      // show result modal with final score
+      setScore(prev => {
+        const ns = prev - 500;
+        setResultModal({ open: true, type: 'win', message: 'Solved by AI', score: ns });
+        return ns;
+      });
       showToast("Solved by AI");
     } catch (err) { showToast("Cheat failed"); }
     finally { setCheatLoading(false); }
@@ -161,12 +169,25 @@ function App() {
         </div>
       )}
 
-      {showVictory && (
+          {showVictory && (
         <div className="victory-overlay">
           <div className="victory-card">
             <h1 className="pink">VICTORY</h1>
             <p>SCORE: {score}</p>
             <button className="btn" onClick={fetchNewGame}>NEW MISSION</button>
+          </div>
+        </div>
+      )}
+
+      {resultModal.open && (
+        <div className="result-overlay">
+          <div className="result-card">
+            <h1 className="pink">{resultModal.type === 'win' ? 'VICTORY' : 'GAME OVER'}</h1>
+            <p>SCORE: {resultModal.score}</p>
+            <p>{resultModal.message}</p>
+            <div style={{marginTop:12}}>
+              <button className="btn" onClick={() => setResultModal({ ...resultModal, open: false })}>CLOSE</button>
+            </div>
           </div>
         </div>
       )}
