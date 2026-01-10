@@ -5,8 +5,10 @@ import './App.css';
 const API_BASE = "https://ushan256-sudoku.hf.space";
 
 function App() {
+  // CRASH FIX: Initialize initialGrid as a 9x9 matrix instead of []
   const [grid, setGrid] = useState(Array(9).fill(0).map(() => Array(9).fill(0)));
-  const [initialGrid, setInitialGrid] = useState([]);
+  const [initialGrid, setInitialGrid] = useState(Array(9).fill(0).map(() => Array(9).fill(0)));
+  
   const [solution, setSolution] = useState([]); 
   const [selected, setSelected] = useState({ r: 0, c: 0 });
   const [timer, setTimer] = useState(0);
@@ -24,12 +26,14 @@ function App() {
   const [darkMode, setDarkMode] = useState(true);
   const [hintedCell, setHintedCell] = useState(null);
 
+  // Responsive UI Listener
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth <= 768);
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
+  // Leaderboard Persistence
   const [leaderboard, setLeaderboard] = useState(() => {
     const saved = localStorage.getItem("neon_sudoku_leaderboard");
     return saved ? JSON.parse(saved) : [];
@@ -50,40 +54,26 @@ function App() {
     if (playerName.length > 2) {
       setIsLoggedIn(true);
       showToast(`Welcome Back, ${playerName}`);
+      // Initialize player in leaderboard if new
       setLeaderboard(prev => {
         if (!prev.find(p => p.name === playerName)) {
-            return [...prev, { name: playerName, best: 0, time: Infinity }].sort((a,b) => b.best - a.best || a.time - b.time);
+            return [...prev, { name: playerName, best: 0, time: Infinity }].sort((a,b) => b.best - a.best);
           }
         return prev;
       });
     } else { showToast("Name too short!"); }
   };
 
-  const updateBestScore = useCallback((finalScore, playerName, finalTime = Infinity) => {
-    setLeaderboard(prevLeaderboard => {
-      const copy = [...prevLeaderboard];
+  const updateBestScore = useCallback((finalScore, playerName) => {
+    setLeaderboard(prev => {
+      const copy = [...prev];
       const idx = copy.findIndex(p => p.name === playerName);
-      if (idx === -1) {
-        copy.push({ name: playerName, best: finalScore, time: finalTime });
-      } else {
-        const current = copy[idx];
-        if (finalScore > current.best) {
-          copy[idx] = { ...current, best: finalScore, time: finalTime };
-        } else if (finalScore === current.best && finalTime < (current.time ?? Infinity)) {
-          copy[idx] = { ...current, time: finalTime };
-        }
+      if (idx !== -1 && finalScore > copy[idx].best) {
+        copy[idx].best = finalScore;
       }
-      return copy.sort((a, b) => (b.best !== a.best) ? b.best - a.best : (a.time ?? Infinity) - (b.time ?? Infinity));
+      return copy.sort((a, b) => b.best - a.best);
     });
   }, []);
-
-  const handleSwitchUser = () => {
-    setIsLoggedIn(false);
-    setGameStarted(false);
-    setShowVictory(false);
-    setGrid(Array(9).fill(0).map(() => Array(9).fill(0)));
-    showToast("Logged out.");
-  };
 
   const fetchNewGame = useCallback(async () => {
     if (!isLoggedIn) return;
@@ -91,9 +81,11 @@ function App() {
       const res = await axios.get(`${API_BASE}/generate/${difficulty}`);
       const newGrid = res.data.grid;
       const solRes = await axios.post(`${API_BASE}/solve`, { grid: newGrid });
+      
       setSolution(solRes.data.solution);
       setGrid(newGrid);
-      setInitialGrid(newGrid.map(row => [...row]));
+      setInitialGrid(newGrid.map(row => [...row])); 
+      
       setTimer(0); setScore(0); setMistakes(0);
       setIsPaused(false); setIsGameEnded(false); setShowVictory(false);
       setGameStarted(true); 
@@ -101,11 +93,16 @@ function App() {
     } catch (err) { showToast("Backend Offline!"); }
   }, [difficulty, isLoggedIn]);
 
-  // NEW: NATIVE KEYBOARD INPUT HANDLER
+  // NATIVE KEYBOARD HANDLER: Supports backspace and number entry
   const handleInput = useCallback((row, col, value) => {
     if (!gameStarted || isGameEnded || isPaused || initialGrid[row][col] !== 0) return;
     
-    // Get last char entered (numeric keypad support)
+    // Handle deletion
+    if (value === "") {
+      const n = [...grid]; n[row][col] = 0; setGrid(n);
+      return;
+    }
+
     const lastChar = value.slice(-1);
     const num = parseInt(lastChar);
     
@@ -118,11 +115,11 @@ function App() {
 
     if (isCorrect) {
       setScore(prev => prev + 100);
-      showToast("Correct!");
+      showToast("Correct! +100");
     } else {
       setScore(prev => prev - 25);
       setMistakes(prev => prev + 1); 
-      showToast("Error Detected");
+      showToast("Mistake! -25");
     }
   }, [gameStarted, isGameEnded, isPaused, initialGrid, solution, grid]);
 
@@ -132,10 +129,12 @@ function App() {
       const res = await axios.post(`${API_BASE}/hint?row=${selected.r}&col=${selected.c}`, { grid });
       const n = [...grid];
       n[selected.r][selected.c] = res.data.value;
+      
       setHintedCell(`${selected.r}-${selected.c}`);
       setGrid(n);
       setScore(prev => prev - 50);
-      showToast("AI Hint Used");
+      showToast("AI Hint Used (-50)");
+      
       setTimeout(() => setHintedCell(null), 1500);
     } catch (err) { showToast("Hint Error"); }
   }, [selected, grid, isGameEnded, isPaused, gameStarted]);
@@ -146,19 +145,21 @@ function App() {
       setGrid(solution);
       setIsGameEnded(true);
       setShowVictory(true); 
-      updateBestScore(score - 500, user, timer);
+      updateBestScore(score - 500, user);
     } catch (err) { showToast("AI Solve Error"); }
-  }, [solution, gameStarted, isGameEnded, score, user, timer, updateBestScore]);
+  }, [solution, gameStarted, isGameEnded, score, user, updateBestScore]);
 
   const handleKeyDown = useCallback((e) => {
     if (!isLoggedIn || showVictory) return;
     if (e.key === 'n') fetchNewGame();
     if (!gameStarted || isPaused || isGameEnded) return;
+    
     const { r, c } = selected;
     if (e.key === 'ArrowUp') setSelected({ r: Math.max(0, r - 1), c });
     if (e.key === 'ArrowDown') setSelected({ r: Math.min(8, r + 1), c });
     if (e.key === 'ArrowLeft') setSelected({ r, c: Math.max(0, c - 1) });
     if (e.key === 'ArrowRight') setSelected({ r, c: Math.min(8, c + 1) });
+    
     if (/[1-9]/.test(e.key)) handleInput(r, c, e.key);
   }, [isLoggedIn, showVictory, fetchNewGame, gameStarted, isPaused, isGameEnded, selected, handleInput]);
 
@@ -191,6 +192,7 @@ function App() {
         <div className="victory-overlay">
           <div className="victory-card">
             <h1 className="pink">VICTORY</h1>
+            <p>Score: {score}</p>
             <button className="btn" onClick={fetchNewGame}>PLAY AGAIN</button>
           </div>
         </div>
@@ -199,8 +201,9 @@ function App() {
       <aside className="sidebar">
         <div className="sidebar-header">
           <h2>ID: {user}</h2>
-          <span className="switch-link" onClick={handleSwitchUser}>SWITCH USER</span>
+          <span className="switch-link" onClick={() => setIsLoggedIn(false)}>LOGOUT</span>
           <div className="theme-toggle">
+            <span>{darkMode ? "NEON" : "LIGHT"}</span>
             <label className="switch">
               <input type="checkbox" checked={!darkMode} onChange={() => setDarkMode(!darkMode)} />
               <span className="slider"></span>
@@ -214,7 +217,8 @@ function App() {
             <ul>
               <li><b>[N]</b> New Puzzle</li>
               <li><b>[H]</b> AI Hint</li>
-              <li><b>[A]</b> AI Solve All</li>
+              <li><b>[A]</b> AI Solve</li>
+              <li><b>[Arrows]</b> Navigate</li>
             </ul>
           </section>
         )}
@@ -231,7 +235,7 @@ function App() {
         <section className="leaderboard-box">
           <h3>LEADERBOARD</h3>
           <div className="leaderboard-list">
-            {leaderboard.slice(0, 3).map((p, i) => (
+            {leaderboard.slice(0, 5).map((p, i) => (
               <div key={i} className="leaderboard-item">
                 <span>{i+1}. {p.name}</span>
                 <span>{p.best}</span>
@@ -244,6 +248,7 @@ function App() {
       <main className="container">
         {notification && <div className="neon-toast">{notification}</div>}
         <h1 className="neon-text">NEON SUDOKU</h1>
+        
         <div className="stats-bar">
           <span>TIME: {Math.floor(timer/60)}:{(timer%60).toString().padStart(2,'0')}</span>
           <span>SCORE: {score}</span>
@@ -279,8 +284,10 @@ function App() {
           <button className="btn" onClick={solveAll}>Solve AI</button>
           <button className="btn" onClick={() => {
             axios.post(`${API_BASE}/validate`, { grid }).then(r => {
-              if (r.data.result === "Win") { setIsGameEnded(true); setShowVictory(true); } 
-              else { showToast(r.data.result); }
+              if (r.data.result === "Win") {
+                updateBestScore(score, user);
+                setShowVictory(true);
+              } else showToast(r.data.result);
             });
           }}>Verify</button>
         </div>
