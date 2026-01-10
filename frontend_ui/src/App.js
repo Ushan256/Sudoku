@@ -22,6 +22,7 @@ function App() {
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
   const [darkMode, setDarkMode] = useState(true);
   const [hintedCell, setHintedCell] = useState(null);
+  const [cheatLoading, setCheatLoading] = useState(false);
 
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth <= 768);
@@ -73,15 +74,31 @@ function App() {
 
   const handleCheat = async () => {
     if (!isLoggedIn || !gameStarted) return showToast("Start a game first");
+    if (cheatLoading) return;
+    setCheatLoading(true);
     try {
       const res = await axios.post(`${API_BASE}/solve`, { grid });
-      setGrid(res.data.solution);
-      setInitialGrid(res.data.solution.map(row => [...row]));
+      if (!res || !res.data || !res.data.solution) {
+        showToast('No solution returned');
+        setCheatLoading(false);
+        return;
+      }
+      const solved = res.data.solution;
+      // validate shape
+      if (!Array.isArray(solved) || solved.length !== 9) {
+        showToast('Invalid solution');
+        setCheatLoading(false);
+        return;
+      }
+      setGrid(solved);
+      setInitialGrid(solved.map(row => Array.isArray(row) ? [...row] : []));
+      setSolution(solved);
       setScore(s => s - 500); // allow negative totals after full cheat
       setShowVictory(true);
       setIsGameEnded(true);
       showToast("Solved by AI");
     } catch (err) { showToast("Cheat failed"); }
+    finally { setCheatLoading(false); }
   };
 
   const handleInput = (row, col, value) => {
