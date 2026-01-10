@@ -23,6 +23,14 @@ function App() {
   const [darkMode, setDarkMode] = useState(true);
   const [hintedCell, setHintedCell] = useState(null);
   const [cheatLoading, setCheatLoading] = useState(false);
+  // Timer increments while a game is active and not paused or ended
+  useEffect(() => {
+    let t = null;
+    if (gameStarted && !isPaused && !isGameEnded && !showVictory) {
+      t = setInterval(() => setTimer(prev => prev + 1), 1000);
+    }
+    return () => { if (t) clearInterval(t); };
+  }, [gameStarted, isPaused, isGameEnded, showVictory]);
 
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth <= 768);
