@@ -1,4 +1,4 @@
-# 🌌 Neon Sudoku: AI-Powered Cyber-Grid
+# Neon Sudoku: AI-Powered Cyber-Grid
 **Project Link:** [https://soduko-omega.vercel.app/](https://soduko-omega.vercel.app/)
 
 **Neon Sudoku** is a retro-futuristic, full-stack puzzle engine that merges high-fidelity "Cyberpunk" aesthetics with deep learning. Developed as a comprehensive 5th-semester BSCS AI project, it features a custom CNN-based AI solver, a dynamic "No-Overlap" responsive UI, and persistent leaderboard logic.
