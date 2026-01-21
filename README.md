@@ -8,8 +8,10 @@
 
 **Neon Sudoku** is a retro-futuristic, full-stack puzzle engine that merges high-fidelity "Cyberpunk" aesthetics with deep learning. Developed as a comprehensive 5th-semester BSCS AI project, it features a custom CNN-based AI solver, a dynamic "No-Overlap" responsive UI, and persistent leaderboard logic.
 <div align="center">
-[Features](#-key-features) • [The AI Brain](#-the-ai-brain) • [Tech Stack](#full-stack-technical-architecture) • [Architecture](#system-architecture) • [Installation](#setup--installation)
-<div>
+
+[Features](#key-features) • [The AI Brain](#the-ai-brain) • [Tech Stack](#full-stack-technical-architecture) • [Architecture](#system-architecture) • [Installation](#setup--installation)
+
+</div>
 ---
 
 ## 🛰️ Overview
