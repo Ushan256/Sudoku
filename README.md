@@ -12,6 +12,7 @@
 [Features](#key-features) • [The AI Brain](#the-ai-brain) • [Tech Stack](#full-stack-technical-architecture) • [Architecture](#system-architecture) • [Installation](#setup--installation)
 
 </div>
+
 ---
 
 ## 🛰️ Overview
