@@ -20,7 +20,6 @@
 **Neon Sudoku** is more than just a game; it is a research-driven application exploring the intersection of **Heuristic Search Algorithms** and **Neural Networks**. By treating the Sudoku grid as a spatial image, the platform provides millisecond-level AI assistance while maintaining a high-performance, neon-infused user experience.
 
 ## 🚀 Key Features
-(This generates id: #key-features)
 
 - 🧠 **SLM Intelligence** - Optimized Convolutional Neural Network (CNN) for lightning-fast grid inference.
 - 📐 **Adaptive Geometry** - Custom CSS engine ensuring a perfect 1:1 aspect ratio across all hardware.
@@ -31,7 +30,6 @@
 ---
 
 ## 🧠 The AI Brain
-(This generates id: #the-ai-brain)
 
 Unlike standard brute-force solvers, **Neon Sudoku** utilizes a specialized **Small Language Model (SLM)** approach—specifically a **Convolutional Neural Network (CNN)**—optimized for grid-based spatial logic.
 
@@ -77,7 +75,7 @@ Unlike standard brute-force solvers, **Neon Sudoku** utilizes a specialized **Sm
 ---
 
 ## 🏗️ System Architecture
-(This generates id: #system-architecture)
+
 ```
 ┌─────────────────────────────────────────────────────────────┐ 
 │ React Web Dashboard (UI)                                    │ 
@@ -113,7 +111,6 @@ The core of Neon Sudoku is a fine-tuned CNN. Below is the research-validated per
 ---
 
 ## 🛠️ Setup & Installation
-(This generates id: #setup--installation)
 
 ### Prerequisites
 - **Node.js** (v18.0+)
