@@ -7,6 +7,7 @@
 [![HuggingFace](https://img.shields.io/badge/Inference-HuggingFace-FFD21E?style=for-the-badge&logo=huggingface&logoColor=black)](#)
 
 **Neon Sudoku** is a retro-futuristic, full-stack puzzle engine that merges high-fidelity "Cyberpunk" aesthetics with deep learning. Developed as a comprehensive 5th-semester BSCS AI project, it features a custom CNN-based AI solver, a dynamic "No-Overlap" responsive UI, and persistent leaderboard logic.
+
 <div align="center">
 
 [Features](#key-features) • [The AI Brain](#the-ai-brain) • [Tech Stack](#full-stack-technical-architecture) • [Architecture](#system-architecture) • [Installation](#setup--installation)
@@ -17,7 +18,9 @@
 
 ## 🛰️ Overview
 
-**Neon Sudoku** is more than just a game; it is a research-driven application exploring the intersection of **Heuristic Search Algorithms** and **Neural Networks**. By treating the Sudoku grid as a spatial image, the platform provides millisecond-level AI assistance while maintaining a high-performance, neon-infused user experience.
+**Neon Sudoku** is a research-driven application exploring the intersection of **Heuristic Search Algorithms** and **Neural Networks**. By treating the Sudoku grid as a spatial image, the platform provides millisecond-level AI assistance while maintaining a high-performance, neon-infused user experience.
+
+---
 
 ## 🚀 Key Features
 
@@ -39,6 +42,8 @@ Unlike standard brute-force solvers, **Neon Sudoku** utilizes a specialized **Sm
 * **Performance Metrics**: The model achieved an impressive **99.2% accuracy** on test sets for digit prediction.
 * **Neural Pipeline**: When a user clicks **AI Hint**, the current 9x9 board state is converted into a normalized 3D tensor, processed by the neural layers, and the highest-probability digit is returned.
 
+
+
 ### 2. Heuristic Algorithms
 * **Predictive Backtracking**: The backend implements a recursive backtracking algorithm enhanced by AI-predicted heuristics.
 * **Search Optimization**: The CNN "prunes" the search tree by identifying the most likely numbers first, significantly reducing compute time compared to pure brute-force methods.
@@ -46,7 +51,6 @@ Unlike standard brute-force solvers, **Neon Sudoku** utilizes a specialized **Sm
 ---
 
 ## 🛠️ Full-Stack Technical Architecture
-(This generates id: #full-stack-technical-architecture)
 
 ### **Frontend (Visual Engine)**
 - **React.js**: Manages complex 9x9 state matrices and high-frequency UI updates for the timer and score engines.
@@ -72,6 +76,7 @@ Unlike standard brute-force solvers, **Neon Sudoku** utilizes a specialized **Sm
 ### 📊 Performance & Difficulty
 - **5 Difficulty Tiers**: Ranging from **Beginner (15 empty cells)** to **Extreme (65 empty cells)**.
 - **Stats-at-a-glance**: Real-time tracking of Time, Score, and Mistakes in a neon-glow status bar.
+
 ---
 
 ## 🏗️ System Architecture
