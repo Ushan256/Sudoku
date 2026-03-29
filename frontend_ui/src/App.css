@@ -1,287 +1,630 @@
 /* ============================================================
-   1. CORE VARIABLES & THEME ENGINE
+   1. GOOGLE FONTS
+   ============================================================ */
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&display=swap');
+
+/* ============================================================
+   2. CSS VARIABLES — DARK MODE (DEFAULT)
    ============================================================ */
 :root {
-  --neon-pink: #ff0077;
-  --neon-blue: #00f2ff;
-  --bg-dark: #0d0d0d;
-  --bg-card: #000000;
-  --text-main: #ffffff; /* FORCES VISIBLE DIGITS */
-  --sidebar-bg: rgba(0, 242, 255, 0.05);
-  --cell-border: #333333;
-  --cell-bg: #000000;
-  --board-size-desktop: 500px; 
-}
+  /* Neon palette */
+  --neon-pink:        #ff0077;
+  --neon-pink-glow:   rgba(255, 0, 119, 0.45);
+  --neon-cyan:        #00f2ff;
+  --neon-cyan-glow:   rgba(0, 242, 255, 0.35);
+  --neon-green:       #39ff14;
 
-.light-mode {
-  --bg-dark: #f8fafc;
-  --bg-card: #ffffff;
-  --text-main: #0b0b0b;
-  --neon-blue: #00d7ff; /* brighter */
-  --neon-pink: #ff2ea6; /* brighter */
-  --sidebar-bg: rgba(0, 86, 179, 0.1);
-  --cell-border: #cccccc;
-  --cell-bg: #ffffff;
+  /* Backgrounds */
+  --bg-app:           #080810;
+  --bg-sidebar:       #0a0a18;
+  --bg-card:          #0d0d1a;
+  --bg-cell:          #050510;
+  --bg-cell-alt:      #0a0a1e;   /* alternating 3x3 box shade */
+
+  /* Text */
+  --text-primary:     #ffffff;
+  --text-secondary:   rgba(255, 255, 255, 0.65);
+  --text-fixed:       var(--neon-cyan);  /* pre-filled digits */
+  --text-user:        #ffffff;           /* player-entered digits */
+
+  /* Borders */
+  --border-cell:      rgba(255, 255, 255, 0.08);
+  --border-box:       var(--neon-pink);   /* thick 3×3 dividers */
+  --border-sidebar:   var(--neon-cyan);
+
+  /* Buttons */
+  --btn-action-bg:        transparent;
+  --btn-action-text:      var(--neon-cyan);
+  --btn-action-border:    var(--neon-cyan);
+  --btn-action-hover-bg:  var(--neon-cyan);
+  --btn-action-hover-text:#000000;
+
+  --btn-primary-bg:       var(--neon-pink);
+  --btn-primary-text:     #ffffff;
+  --btn-primary-border:   var(--neon-pink);
+  --btn-primary-hover-bg: #cc005f;
+
+  --btn-cheat-bg:         linear-gradient(135deg, #ff274b, #ff0077);
+  --btn-cheat-text:       #ffffff;
+  --btn-cheat-border:     #ff274b;
+
+  --btn-logout-bg:        transparent;
+  --btn-logout-text:      var(--neon-pink);
+  --btn-logout-border:    var(--neon-pink);
+  --btn-logout-hover-bg:  var(--neon-pink);
+  --btn-logout-hover-text:#000000;
+
+  /* Sidebar specifics */
+  --sidebar-heading:  var(--neon-cyan);
+  --leader-text:      rgba(255, 255, 255, 0.85);
+  --instr-text:       rgba(255, 255, 255, 0.75);
+  --stat-chip-bg:     rgba(0, 0, 0, 0.4);
+  --stat-chip-border: rgba(255, 255, 255, 0.06);
+
+  /* Board */
+  --board-size: 500px;
+  --board-border: var(--neon-cyan);
+  --cell-selected-bg:   rgba(255, 0, 119, 0.25);
+  --cell-selected-glow: var(--neon-pink);
+  --cell-cross-bg:      rgba(0, 242, 255, 0.06);
 }
 
 /* ============================================================
-   2. GLOBAL RESET
+   3. LIGHT MODE OVERRIDES — Every variable redefined
    ============================================================ */
-* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+.light-mode {
+  --bg-app:           #f0f4ff;
+  --bg-sidebar:       #1a1a3e;     /* dark sidebar keeps neon readable */
+  --bg-card:          #ffffff;
+  --bg-cell:          #ffffff;
+  --bg-cell-alt:      #eef2ff;
+
+  --text-primary:     #0a0a1a;
+  --text-secondary:   #3a3a5c;
+  --text-fixed:       #0055cc;     /* vivid blue for pre-filled */
+  --text-user:        #cc0044;     /* vivid pink-red for player entries */
+
+  --border-cell:      #c8d0e8;
+  --border-box:       #cc0044;
+  --border-sidebar:   #0055cc;
+
+  /* Action buttons (bottom row) — dark bg, light text */
+  --btn-action-bg:        #1a1a3e;
+  --btn-action-text:      #00f2ff;
+  --btn-action-border:    #0055cc;
+  --btn-action-hover-bg:  #0055cc;
+  --btn-action-hover-text:#ffffff;
+
+  /* Primary buttons (Login, New Mission, Close) */
+  --btn-primary-bg:       #cc0044;
+  --btn-primary-text:     #ffffff;
+  --btn-primary-border:   #cc0044;
+  --btn-primary-hover-bg: #990033;
+
+  /* Cheat button stays red */
+  --btn-cheat-bg:         linear-gradient(135deg, #cc0033, #ff0055);
+  --btn-cheat-text:       #ffffff;
+  --btn-cheat-border:     #cc0033;
+
+  /* Logout — inside dark sidebar so keep neon */
+  --btn-logout-bg:        transparent;
+  --btn-logout-text:      #ff66aa;
+  --btn-logout-border:    #ff66aa;
+  --btn-logout-hover-bg:  #ff66aa;
+  --btn-logout-hover-text:#000000;
+
+  --sidebar-heading:  #00f2ff;     /* sidebar stays dark, cyan headings */
+  --leader-text:      rgba(255, 255, 255, 0.9);
+  --instr-text:       rgba(255, 255, 255, 0.8);
+  --stat-chip-bg:     rgba(0, 0, 0, 0.07);
+  --stat-chip-border: rgba(0, 0, 0, 0.12);
+
+  --board-border:     #0055cc;
+  --cell-selected-bg:   rgba(204, 0, 68, 0.15);
+  --cell-selected-glow: #cc0044;
+  --cell-cross-bg:      rgba(0, 85, 204, 0.07);
+}
+
+/* ============================================================
+   4. GLOBAL RESET
+   ============================================================ */
+*, *::before, *::after {
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
 
 body, html {
   margin: 0; padding: 0;
-  background: var(--bg-dark);
-  font-family: 'Orbitron', sans-serif;
-  color: var(--text-main);
+  background: var(--bg-app);
+  font-family: 'Orbitron', 'Share Tech Mono', monospace;
+  color: var(--text-primary);
   overflow-x: hidden;
-  transition: background 0.3s ease;
+  transition: background 0.3s ease, color 0.3s ease;
 }
 
+/* ============================================================
+   5. APP SHELL
+   ============================================================ */
 .app-shell {
   display: flex;
   height: 100vh;
   width: 100vw;
   flex-direction: row;
+  background: var(--bg-app);
 }
 
 /* ============================================================
-   3. SIDEBAR (Fixed Visibility)
+   6. SIDEBAR
    ============================================================ */
 .sidebar {
-  width: 300px; min-width: 300px;
-  border-right: 2px solid var(--neon-blue);
-  background: var(--sidebar-bg);
-  padding: 25px; display: flex; flex-direction: column;
+  width: 280px;
+  min-width: 280px;
+  background: var(--bg-sidebar);
+  border-right: 2px solid var(--border-sidebar);
+  padding: 24px 20px;
+  display: flex;
+  flex-direction: column;
   overflow-y: auto;
+  gap: 0;
 }
 
-.sidebar-header { border-bottom: 1px solid var(--neon-blue); padding-bottom: 15px; margin-bottom: 20px; }
-.sidebar-header h2 { color: var(--neon-pink); font-size: 1rem; margin: 0; text-transform: uppercase; }
+.sidebar-header {
+  border-bottom: 1px solid var(--border-sidebar);
+  padding-bottom: 16px;
+  margin-bottom: 4px;
+}
 
-.theme-toggle { margin-top: 15px; display: flex; align-items: center; gap: 10px; font-size: 0.7rem; }
-.switch { position: relative; display: inline-block; width: 34px; height: 18px; }
-.switch input { opacity: 0; width: 0; height: 0; }
-.slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #333; transition: .4s; border-radius: 34px; border: 1px solid var(--neon-blue); }
-.slider:before { position: absolute; content: ""; height: 12px; width: 12px; left: 2px; bottom: 2px; background-color: var(--neon-blue); transition: .4s; border-radius: 50%; }
-input:checked + .slider { background-color: var(--neon-pink); }
-input:checked + .slider:before { transform: translateX(16px); background-color: white; }
+/* Sidebar user ID — always on dark sidebar background → always white */
+.sidebar-user {
+  color: var(--neon-pink) !important;
+  font-size: 0.95rem;
+  margin: 0 0 12px 0;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+.sidebar-section {
+  margin-top: 20px;
+}
+
+/* Sidebar headings — always on dark sidebar → always cyan */
+.sidebar-heading {
+  color: var(--sidebar-heading) !important;
+  font-size: 0.75rem;
+  letter-spacing: 3px;
+  margin: 0 0 10px 0;
+  text-transform: uppercase;
+}
 
 /* ============================================================
-   4. THE SUDOKU ENGINE (Digit Visibility Fix)
+   7. THEME TOGGLE
+   ============================================================ */
+.theme-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.65rem;
+  color: rgba(255, 255, 255, 0.7);
+  letter-spacing: 1px;
+}
+
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 36px;
+  height: 20px;
+}
+.switch input { opacity: 0; width: 0; height: 0; }
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  inset: 0;
+  background: #1a1a2e;
+  border: 1px solid var(--neon-cyan);
+  border-radius: 34px;
+  transition: 0.3s;
+}
+.slider::before {
+  content: "";
+  position: absolute;
+  height: 13px; width: 13px;
+  left: 3px; bottom: 3px;
+  background: var(--neon-cyan);
+  border-radius: 50%;
+  transition: 0.3s;
+}
+input:checked + .slider { background: rgba(255, 0, 119, 0.2); border-color: var(--neon-pink); }
+input:checked + .slider::before { transform: translateX(16px); background: var(--neon-pink); }
+
+/* ============================================================
+   8. DIFFICULTY SELECT
+   ============================================================ */
+.diff-select {
+  width: 100%;
+  padding: 10px 12px;
+  font-size: 0.8rem;
+  font-family: 'Orbitron', monospace;
+  border: 1px solid var(--neon-cyan);
+  background: rgba(0, 242, 255, 0.06);
+  color: #ffffff;           /* always white — select is inside dark sidebar */
+  border-radius: 4px;
+  -webkit-appearance: none;
+  appearance: none;
+  cursor: pointer;
+  letter-spacing: 1px;
+}
+.diff-select option {
+  background: #0d0d1a;
+  color: #ffffff;
+}
+
+/* ============================================================
+   9. LEADERBOARD & INSTRUCTIONS (inside dark sidebar)
+   ============================================================ */
+.leader-list {
+  max-height: 130px;
+  overflow-y: auto;
+  font-size: 0.8rem;
+  font-family: 'Share Tech Mono', monospace;
+}
+.leader-row {
+  padding: 5px 0;
+  border-bottom: 1px dashed rgba(0, 242, 255, 0.12);
+  color: var(--leader-text);
+}
+
+.instr-text {
+  font-size: 0.75rem;
+  font-family: 'Share Tech Mono', monospace;
+  color: var(--instr-text);
+  line-height: 1.9;
+  margin-bottom: 12px;
+}
+
+/* ============================================================
+   10. BUTTONS
+   ============================================================ */
+.btn {
+  padding: 12px 16px;
+  font-family: 'Orbitron', monospace;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: all 0.25s ease;
+  display: block;
+  width: 100%;
+}
+
+/* Action buttons — bottom 4 buttons on game board */
+.btn-action {
+  background: var(--btn-action-bg);
+  color: var(--btn-action-text);
+  border: 1px solid var(--btn-action-border);
+}
+.btn-action:hover {
+  background: var(--btn-action-hover-bg);
+  color: var(--btn-action-hover-text);
+  box-shadow: 0 0 14px var(--neon-cyan-glow);
+}
+
+/* Primary buttons — login, close, new mission */
+.btn-primary {
+  background: var(--btn-primary-bg);
+  color: var(--btn-primary-text);
+  border: 1px solid var(--btn-primary-border);
+}
+.btn-primary:hover {
+  background: var(--btn-primary-hover-bg);
+  box-shadow: 0 0 14px var(--neon-pink-glow);
+}
+
+/* Cheat / AI Solve — always red */
+.btn-cheat {
+  background: var(--btn-cheat-bg);
+  color: var(--btn-cheat-text) !important;
+  border: 1px solid var(--btn-cheat-border);
+  box-shadow: 0 0 12px rgba(255, 39, 75, 0.3);
+  width: 100%;
+}
+.btn-cheat:hover {
+  box-shadow: 0 0 20px rgba(255, 0, 119, 0.55);
+  transform: translateY(-1px);
+}
+
+/* Logout — inside dark sidebar → always pink */
+.btn-logout {
+  background: var(--btn-logout-bg);
+  color: var(--btn-logout-text) !important;
+  border: 1px solid var(--btn-logout-border);
+  margin-top: auto;
+  padding-top: 16px;
+}
+.btn-logout:hover {
+  background: var(--btn-logout-hover-bg);
+  color: var(--btn-logout-hover-text) !important;
+}
+
+/* ============================================================
+   11. MAIN CONTAINER
    ============================================================ */
 .container {
   flex-grow: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: flex-start; /* Prevents buttons from jumping up */
-  padding: 40px 20px;
-  overflow-y: auto; /* Allows scrolling if board + buttons are tall */
+  justify-content: flex-start;
+  padding: 36px 20px 40px;
+  overflow-y: auto;
+  background: var(--bg-app);
 }
 
-.neon-text { 
-  font-size: 2.5rem; 
-  text-shadow: 0 0 10px var(--neon-pink); 
-  margin-bottom: 20px; 
+.neon-text {
+  font-size: 2.4rem;
+  font-weight: 900;
+  color: var(--text-primary);
+  text-shadow: 0 0 12px var(--neon-pink-glow), 0 0 24px var(--neon-pink-glow);
+  margin: 0 0 18px 0;
+  letter-spacing: 4px;
+}
+
+/* Title inside modal/overlay cards */
+.neon-title {
+  font-size: 1.8rem;
+  font-weight: 900;
+  color: var(--neon-pink);
+  text-shadow: 0 0 10px var(--neon-pink-glow);
+  margin: 0 0 12px 0;
+  letter-spacing: 3px;
+}
+
+/* ============================================================
+   12. STATS BAR
+   ============================================================ */
+.stats-bar {
+  width: var(--board-size);
+  max-width: 95vw;
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.stat-chip {
+  background: var(--stat-chip-bg);
+  border: 1px solid var(--stat-chip-border);
+  color: var(--text-primary);
+  padding: 6px 14px;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  font-family: 'Share Tech Mono', monospace;
+  letter-spacing: 1px;
+}
+
+/* ============================================================
+   13. SUDOKU BOARD
+   ============================================================ */
+.board-wrapper {
+  display: flex;
+  justify-content: center;
+  width: 100%;
 }
 
 .board {
   display: grid;
   grid-template-columns: repeat(9, 1fr);
-  width: var(--board-size-desktop);
-  height: var(--board-size-desktop);
-  background: var(--neon-blue);
-  padding: 4px;
-  border: 4px solid var(--neon-blue);
-  box-shadow: 0 0 20px rgba(0, 242, 255, 0.2);
+  width: var(--board-size);
+  height: var(--board-size);
+  /* Outer border: cyan */
+  border: 3px solid var(--board-border);
+  box-shadow: 0 0 24px var(--neon-cyan-glow);
+  background: var(--border-box);   /* pink gap between cells = box dividers */
+  gap: 0;
 }
 
+/* Individual cell */
 .cell-input {
   width: 100%;
-  height: auto;
-  aspect-ratio: 1 / 1; /* keep cells perfectly square */
-  /* CRITICAL FIX: Center and Color the Digits */
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  height: 100%;
+  aspect-ratio: 1 / 1;
   text-align: center;
-  padding: 0; /* remove default input padding */
-  font-size: 1.8rem; /* Larger font */
-  line-height: 1; /* avoid vertical mis-centering */
-  font-weight: bold;
-  color: var(--text-main) !important; /* Ensure digits are visible */
-  background: var(--cell-bg);
-  border: 1px solid var(--cell-border);
+  padding: 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+  font-family: 'Orbitron', monospace;
+  background: var(--bg-cell);
+  color: var(--text-user);
+  border: 1px solid var(--border-cell);
   outline: none;
-  font-family: 'Orbitron', sans-serif;
   border-radius: 0;
   -webkit-appearance: none;
-  -moz-appearance: none;
   appearance: none;
   caret-color: var(--neon-pink);
+  transition: background 0.15s ease, box-shadow 0.15s ease;
 }
 
-/* Highlights */
-.cell-input.active { background: rgba(255, 0, 119, 0.2) !important; box-shadow: inset 0 0 8px var(--neon-pink); }
+/* Pre-filled (fixed) digits */
 .cell-input.fixed {
-  color: var(--neon-blue) !important;
+  color: var(--text-fixed) !important;
   font-weight: 900;
-  background: var(--cell-bg); /* keep fixed/generated cells black or same as board cells */
-  border: 1px solid rgba(255,255,255,0.04);
-  background-clip: padding-box; /* prevent background bleeding over borders */
+  background: var(--bg-cell);
 }
 
-/* Ensure user-entered numbers look distinct */
-.cell-input.user { color: var(--text-main); font-weight: 700; }
+/* Player-entered digits */
+.cell-input.user {
+  color: var(--text-user) !important;
+}
 
-/* Placeholder color (if used) */
-.cell-input::placeholder { color: rgba(255,255,255,0.25); }
+/* Alternating 3×3 box shading — subtle but visible */
+.cell-input.alt-box {
+  background: var(--bg-cell-alt);
+}
+.cell-input.alt-box.fixed {
+  background: var(--bg-cell-alt);
+}
+
+/* Selected cell */
+.cell-input.active {
+  background: var(--cell-selected-bg) !important;
+  box-shadow: inset 0 0 10px var(--cell-selected-glow);
+  z-index: 1;
+}
+
+/* Same row/column highlight */
+.cell-input.highlight-cross {
+  background: var(--cell-cross-bg);
+}
+
+/* Hint animation */
+.cell-input.hint-pulse {
+  animation: ai-glow 1.5s ease-out;
+}
 
 /* ============================================================
-   4.5 UI ELEMENTS: login, difficulty, stats, small cards
+   14. BOX BORDERS — Complete 3×3 dividers (FIXED)
+   The border must appear on ALL cells in column 3 and 6,
+   and ALL cells in row 3 and 6.
+   We use the class applied in JSX: border-right-box / border-bottom-box
    ============================================================ */
-.login-card .pink, .victory-card .pink { color: var(--neon-pink); margin: 0 0 12px 0; }
-.login-input {
-  width: 260px;
-  max-width: 90vw;
-  padding: 12px 14px;
-  font-size: 1rem;
-  border: 1px solid var(--neon-blue);
-  background: transparent;
-  color: var(--text-main);
-  outline: none;
-  margin-bottom: 12px;
-}
-.diff-select {
-  width: 100%;
-  padding: 10px 12px;
-  font-size: 0.95rem;
-  border: 1px solid var(--neon-blue);
-  background: transparent;
-  color: var(--text-main);
+.border-right-box {
+  border-right: 3px solid var(--border-box) !important;
 }
 
-.diff-select, .diff-select option { color: var(--text-main); background: var(--bg-card); }
-.diff-select { -webkit-appearance: none; appearance: none; }
-
-.leaderboard { margin-top: 18px; }
-.leader-list { max-height: 120px; overflow-y: auto; font-size: 0.95rem; }
-.leader-row { padding: 6px 0; border-bottom: 1px dashed rgba(255,255,255,0.03); }
-.instructions { margin-top: 14px; font-size: 0.9rem; }
-.instr-text { margin-bottom: 8px; color: rgba(255,255,255,0.85); }
-.btn.small { padding: 8px 10px; font-size: 0.8rem; }
-.instructions .btn.small { margin-bottom: 12px; }
-
-/* Neon red cheat button */
-.btn.cheat {
-  background: linear-gradient(135deg, #ff274b, #ff0077);
-  border: 1px solid #ff274b;
-  color: #000 !important; /* ensure visible text */
-  font-weight: 700;
-  box-shadow: 0 0 12px rgba(255, 39, 75, 0.45), inset 0 0 8px rgba(255,255,255,0.05);
+.border-bottom-box {
+  border-bottom: 3px solid var(--border-box) !important;
 }
-
-/* Result modal */
-.result-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); display:flex; align-items:center; justify-content:center; z-index: 10001; }
-.result-card { padding: 28px; border: 2px solid var(--neon-pink); background: var(--bg-card); color: var(--text-main); text-align:center; min-width: 260px; }
-
-/* Logout spacing */
-.logout-btn { margin-top: 22px; }
-
-/* Ensure sidebar buttons are visible */
-.sidebar .btn { color: var(--neon-pink); border-color: rgba(0,242,255,0.12); }
-.sidebar .btn:hover { color: #000; }
-
-.stats-bar {
-  width: var(--board-size-desktop);
-  max-width: 95vw;
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 12px;
-  font-size: 1rem;
-}
-.stats-bar span { background: rgba(0,0,0,0.25); padding: 6px 10px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.04); }
-
-.board-wrapper { display: flex; justify-content: center; width: 100%; }
-
-.victory-overlay { position: fixed; inset: 0; display:flex; align-items:center; justify-content:center; background: rgba(0,0,0,0.85); z-index: 10000; }
-.victory-card { padding: 28px; border: 2px solid var(--neon-pink); background: var(--bg-card); color: var(--text-main); text-align:center; }
-
-/* Grid Boundaries */
-.cell-input:nth-of-type(3n) { border-right: 4px solid var(--neon-pink); }
-.cell-input:nth-of-type(9n) { border-right: 1px solid rgba(255,255,255,0.06); }
-.row-boundary { border-bottom: 4px solid var(--neon-pink); }
 
 /* ============================================================
-   5. BUTTONS (Overlap Fix)
+   15. BOTTOM ACTION BUTTONS GRID
    ============================================================ */
 .buttons-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 15px;
-  margin-top: 30px; /* Space between board and buttons */
-  width: var(--board-size-desktop);
+  gap: 12px;
+  margin-top: 24px;
+  width: var(--board-size);
+  max-width: 95vw;
 }
-
-.btn {
-  padding: 15px;
-  border: 1px solid var(--neon-blue);
-  background: transparent;
-  color: var(--text-main);
-  cursor: pointer;
-  font-family: 'Orbitron';
-  font-size: 0.8rem;
-  transition: 0.3s;
-  text-transform: uppercase;
-}
-
-.btn:hover { background: var(--neon-blue); color: #000; box-shadow: 0 0 15px var(--neon-blue); }
-
-/* Ensure buttons remain readable in light mode */
-.light-mode .btn {
-  color: var(--text-main);
-  border-color: rgba(0,86,179,0.12);
-}
-
-.light-mode .btn:hover {
-  background: var(--neon-blue);
-  color: #000;
-  box-shadow: 0 0 15px var(--neon-blue);
-}
-
-/* Sidebar buttons in light mode should keep the neon accent */
-.light-mode .sidebar .btn {
-  color: var(--neon-pink);
-  border-color: rgba(0,86,179,0.12);
-}
-
-/* Keep cheat button text visible on both themes */
-.light-mode .btn.cheat { color: #000 !important; }
 
 /* ============================================================
-   6. MOBILE RESPONSIVE
+   16. OVERLAYS & MODALS
    ============================================================ */
-@media (max-width: 768px) {
-  .app-shell { flex-direction: column; height: auto; }
-  .sidebar { width: 100%; min-width: 100%; border-right: none; border-bottom: 2px solid var(--neon-blue); }
-  
-  .container { padding: 20px 10px 100px 10px; }
-  
-  .board {
-    width: 95vw;
-    height: 95vw;
-    border-width: 2px;
-  }
-
-  .cell-input { font-size: 1.4rem; }
-
-  .buttons-grid { width: 95vw; margin-top: 20px; }
+.login-overlay,
+.victory-overlay,
+.result-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.88);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
 }
 
-/* Animations */
-@keyframes ai-glow { 0% { box-shadow: 0 0 0px var(--neon-blue); } 50% { box-shadow: 0 0 20px var(--neon-blue); background: rgba(0, 242, 255, 0.2); } 100% { box-shadow: 0 0 0px var(--neon-blue); } }
-.hint-pulse { animation: ai-glow 1.5s ease-out; }
-.neon-toast { position: fixed; top: 20px; right: 20px; padding: 15px; background: #000; border: 1px solid var(--neon-pink); z-index: 9999; }
-.login-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); display: flex; justify-content: center; align-items: center; z-index: 9999; }
-.login-card { border: 2px solid var(--neon-blue); padding: 40px; background: #000; text-align: center; }
+.login-card,
+.victory-card,
+.result-card {
+  background: var(--bg-card);
+  border: 2px solid var(--neon-pink);
+  box-shadow: 0 0 30px var(--neon-pink-glow);
+  padding: 40px;
+  text-align: center;
+  min-width: 280px;
+  border-radius: 4px;
+}
+
+/* Text inside modal — needs to read against card background */
+.login-card p,
+.victory-card p,
+.result-card p {
+  color: var(--text-primary);
+}
+
+.login-input {
+  width: 260px;
+  max-width: 90vw;
+  padding: 12px 14px;
+  font-size: 0.9rem;
+  font-family: 'Share Tech Mono', monospace;
+  border: 1px solid var(--neon-cyan);
+  background: rgba(0, 242, 255, 0.05);
+  color: var(--text-primary);
+  outline: none;
+  border-radius: 4px;
+  margin-bottom: 16px;
+}
+
+/* ============================================================
+   17. TOAST NOTIFICATION
+   ============================================================ */
+.neon-toast {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  padding: 12px 20px;
+  background: var(--bg-card);
+  border: 1px solid var(--neon-pink);
+  color: var(--text-primary);
+  font-size: 0.8rem;
+  letter-spacing: 1px;
+  z-index: 99999;
+  border-radius: 4px;
+  box-shadow: 0 0 14px var(--neon-pink-glow);
+}
+
+/* ============================================================
+   18. SCROLLBAR STYLING
+   ============================================================ */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--neon-cyan); border-radius: 2px; }
+
+/* ============================================================
+   19. ANIMATIONS
+   ============================================================ */
+@keyframes ai-glow {
+  0%   { box-shadow: 0 0 0 var(--neon-cyan); }
+  50%  { box-shadow: inset 0 0 16px var(--neon-cyan); background: rgba(0, 242, 255, 0.22); }
+  100% { box-shadow: 0 0 0 var(--neon-cyan); }
+}
+
+/* ============================================================
+   20. MOBILE RESPONSIVE
+   ============================================================ */
+@media (max-width: 768px) {
+  .app-shell {
+    flex-direction: column;
+    height: auto;
+    min-height: 100vh;
+  }
+
+  .sidebar {
+    width: 100%;
+    min-width: 100%;
+    border-right: none;
+    border-bottom: 2px solid var(--border-sidebar);
+    padding: 16px;
+  }
+
+  .container {
+    padding: 20px 10px 60px;
+  }
+
+  :root {
+    --board-size: 95vw;
+  }
+
+  .neon-text { font-size: 1.6rem; }
+
+  .cell-input { font-size: 1.2rem; }
+
+  .buttons-grid {
+    width: 95vw;
+    margin-top: 16px;
+    gap: 8px;
+  }
+
+  .stats-bar { width: 95vw; }
+}
