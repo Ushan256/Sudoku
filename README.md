@@ -6,7 +6,7 @@
 [![TensorFlow](https://img.shields.io/badge/Intelligence-TensorFlow-FF6F00?style=for-the-badge&logo=tensorflow&logoColor=white)](#)
 [![HuggingFace](https://img.shields.io/badge/Inference-HuggingFace-FFD21E?style=for-the-badge&logo=huggingface&logoColor=black)](#)
 
-**Neon Sudoku** is a retro-futuristic, full-stack puzzle engine that merges high-fidelity "Cyberpunk" aesthetics with deep learning. Developed as a comprehensive 5th-semester BSCS AI project, it features a custom CNN-based AI solver, a dynamic "No-Overlap" responsive UI, and persistent leaderboard logic.
+**Neon Sudoku** is a retro-futuristic, full-stack puzzle engine that merges high-fidelity cyberpunk aesthetics with deep learning. Developed as a 5th-semester BSCS AI project, it features a CNN-based AI solver, a dynamic dual-theme UI, and persistent leaderboard logic.
 
 <div align="center">
 
@@ -18,145 +18,146 @@
 
 ## 🛰️ Overview
 
-**Neon Sudoku** is a research-driven application exploring the intersection of **Heuristic Search Algorithms** and **Neural Networks**. By treating the Sudoku grid as a spatial image, the platform provides millisecond-level AI assistance while maintaining a high-performance, neon-infused user experience.
+**Neon Sudoku** explores the intersection of **Heuristic Search Algorithms** and **Neural Networks**. By treating the Sudoku grid as a spatial problem, the platform provides millisecond-level AI assistance while maintaining a high-performance, neon-infused user experience.
 
 ---
 
 ## 🚀 Key Features
 
-- 🧠 **SLM Intelligence** - Optimized Convolutional Neural Network (CNN) for lightning-fast grid inference.
-- 📐 **Adaptive Geometry** - Custom CSS engine ensuring a perfect 1:1 aspect ratio across all hardware.
-- 📱 **Mobile-Native UX** - Intelligent `inputMode` detection for native numeric keypad integration.
-- 🌓 **Dual Dynamic Themes** - Seamless toggle between high-glow Neon Mode and high-contrast Classic Mode.
-- 🏆 **Forensic Leaderboards** - Locally persistent ranking system tracking score, mistakes, and AI usage penalties.
+- 🧠 **CNN Intelligence** — Convolutional Neural Network for lightning-fast digit inference and grid solving.
+- 📐 **Locked-Square Geometry** — CSS engine ensuring a perfect 1:1 aspect ratio across all hardware.
+- 📱 **Mobile-Native UX** — `inputMode="numeric"` triggers the native mobile keypad automatically.
+- 🌓 **Dual Dynamic Themes** — Seamless toggle between high-glow Neon (dark) and high-contrast Classic (light) mode with full button and text visibility in both.
+- 🏆 **Persistent Leaderboard** — LocalStorage-backed ranking system tracking scores and AI usage penalties.
+- ⌨️ **Keyboard Controls** — Arrow keys to navigate, 1–9 to enter digits, H for hint, N for new game.
 
 ---
 
 ## 🧠 The AI Brain
 
-Unlike standard brute-force solvers, **Neon Sudoku** utilizes a specialized **Small Language Model (SLM)** approach—specifically a **Convolutional Neural Network (CNN)**—optimized for grid-based spatial logic.
+**Neon Sudoku** utilises a specialised **Convolutional Neural Network (CNN)** optimised for grid-based spatial logic, rather than a general-purpose solver.
 
-### 1. Model Architecture & Training
-* **The SLM Strategy**: By utilizing a specialized CNN instead of a Large Language Model (LLM), we achieved millisecond inference times suitable for real-time gaming without high latency.
-* **Dataset & Training**: The model was trained on a research-grade dataset of **1 million unique Sudoku puzzles** and their solutions, enabling it to recognize complex digit-spatial relationships.
-* **Performance Metrics**: The model achieved an impressive **99.2% accuracy** on test sets for digit prediction.
-* **Neural Pipeline**: When a user clicks **AI Hint**, the current 9x9 board state is converted into a normalized 3D tensor, processed by the neural layers, and the highest-probability digit is returned.
+### Model Architecture & Training
 
+| Property | Detail |
+|:---|:---|
+| **Architecture** | Custom CNN (TensorFlow/Keras) |
+| **Training Set** | 1,000,000 unique Sudoku puzzles |
+| **Validation Accuracy** | 99.2% on digit prediction |
+| **Inference Time** | < 5 ms per digit |
+| **Full Solve Time** | < 20 ms for complete 9×9 grid |
 
+### How It Works
 
-### 2. Heuristic Algorithms
-* **Predictive Backtracking**: The backend implements a recursive backtracking algorithm enhanced by AI-predicted heuristics.
-* **Search Optimization**: The CNN "prunes" the search tree by identifying the most likely numbers first, significantly reducing compute time compared to pure brute-force methods.
+When a user requests **AI Hint**, the current 9×9 board state is serialised into a normalised tensor, passed through the CNN inference pipeline on the Hugging Face backend, and the highest-probability digit for the selected cell is returned and applied.
+
+When **AI Solve All** is triggered, a recursive backtracking algorithm enhanced by CNN-predicted heuristics fills the entire board. The CNN prunes the search tree by identifying the most likely candidate digits first, dramatically reducing compute time versus pure brute-force.
 
 ---
 
 ## 🛠️ Full-Stack Technical Architecture
 
-### **Frontend (Visual Engine)**
-- **React.js**: Manages complex 9x9 state matrices and high-frequency UI updates for the timer and score engines.
-- **CSS3 "Neon" Engine**: A 360+ line custom stylesheet providing:
-    - **Locked-Square Geometry**: Prevents "board squashing" on monitors by using fractional units and fixed desktop sizing to maintain a perfect 1:1 aspect ratio.
-    - **Native Mobile UX**: Implements `inputMode="numeric"` to trigger the native mobile numeric keypad for a seamless touch-screen experience.
-    - **Scanline FX**: A horizontal "laser-scan" effect that simulates a real-time AI monitoring system.
+### Frontend (React.js)
+- Manages the 9×9 state matrix, timer, score engine, and keyboard event routing.
+- Custom 400-line CSS engine with two fully distinct themes: dark neon and light classic — every button, text element, and board cell is explicitly styled for both modes.
+- `inputMode="numeric"` for seamless mobile touch input.
+- LocalStorage persistence for leaderboard data across sessions.
 
-### **Backend (Intelligence Layer)**
-- **FastAPI (Python)**: A high-performance, asynchronous framework used to serve the AI model with minimal overhead.
-- **TensorFlow/Keras**: Powering the inference engine for the custom CNN model.
-- **Hugging Face**: The backend is hosted as a dedicated "Space" on Hugging Face, ensuring the AI solver is globally accessible via REST API.
+### Backend (FastAPI + TensorFlow)
+- High-performance async API serving the CNN model with minimal overhead.
+- Endpoints: `/generate/{difficulty}`, `/solve`, `/validate`, `/hint`
+- Deployed on **Hugging Face Spaces** for globally accessible REST inference.
 
 ---
 
-## 🎮 Game Experience & Features
+## 🎮 Game Mechanics
 
-### 📸 AI Vision & Assistance
-- **AI Hint**: Generates the single correct digit for any selected empty cell using the neural engine (-50 point penalty).
-- **AI Solve**: Demonstrates the predictive backtracking algorithm by filling the entire board instantly.
-- **Mistake Detection**: Real-time validation against the solution matrix with automated **"Error-Shake"** visual feedback.
+| Action | Points |
+|:---|:---|
+| Correct digit entry | +100 |
+| Incorrect digit entry | −25 |
+| AI Hint used | −50 |
+| AI Solve All used | −500 |
 
-### 📊 Performance & Difficulty
-- **5 Difficulty Tiers**: Ranging from **Beginner (15 empty cells)** to **Extreme (65 empty cells)**.
-- **Stats-at-a-glance**: Real-time tracking of Time, Score, and Mistakes in a neon-glow status bar.
+**5 Difficulty Tiers**: Beginner (15 empty cells) → Easy → Intermediate → Hard → Extreme (65 empty cells).
 
 ---
 
 ## 🏗️ System Architecture
 
 ```
-┌─────────────────────────────────────────────────────────────┐ 
-│ React Web Dashboard (UI)                                    │ 
-│ • Single-Page Game Engine • Theme Controller                │ 
-│ • LocalStorage Persistence • Native Keyboard Auth           │ 
-└────────────────────────┬────────────────────────────────────┘ 
+┌─────────────────────────────────────────────────────────────┐
+│  React Frontend (Vercel)                                    │
+│  • Game Engine  • Dual Theme  • LocalStorage Leaderboard   │
+└────────────────────────┬────────────────────────────────────┘
+                         │ REST API (axios)
+┌────────────────────────▼────────────────────────────────────┐
+│  FastAPI Backend (Hugging Face Spaces)                      │
+│  • CNN Inference  • Backtracking Solver  • Validation       │
+└────────────────────────┬────────────────────────────────────┘
                          │
-┌────────────────────────▼────────────────────────────────────┐ 
-│ FastAPI Intelligence Engine                                 │ 
-│ • CNN Inference Pipeline • Solution Generator               │ 
-│ • Backtracking Algorithm • Validation Logic                 │ 
-└────────────────────────┬────────────────────────────────────┘ 
-                         │ 
-┌────────────────────────▼────────────────────────────────────┐ 
-│ Neural Weight Storage                                       │ 
-│ • TensorFlow (H5) Weights • 1M Puzzle Dataset               │ 
-│ • Hugging Face Spaces • REST API Endpoints                  │ 
+┌────────────────────────▼────────────────────────────────────┐
+│  Model Storage                                              │
+│  • TensorFlow H5 Weights  • 1M Puzzle Dataset               │
 └─────────────────────────────────────────────────────────────┘
 ```
----
-
-## 📊 Model Performance Report
-
-The core of Neon Sudoku is a fine-tuned CNN. Below is the research-validated performance breakdown.
-
-| Category | Value | Description |
-|:---|:---|:---|
-| **Accuracy** | 99.2% | Accuracy on validation grid predictions |
-| **Inference Time** | <5ms | Average time for single digit prediction |
-| **Solve Time** | <20ms | Total time for AI to solve 9x9 grid |
-| **Training Set** | 1,000,000 | Total unique puzzles processed |
 
 ---
 
 ## 🛠️ Setup & Installation
 
 ### Prerequisites
-- **Node.js** (v18.0+)
+- **Node.js** v18.0+
 - **npm** or **yarn**
 
-### Setup Procedure
+### Steps
 
-1. **Clone the Repository**
+1. **Clone the repository**
    ```bash
-   git clone [https://github.com/your-username/soduko-omega.git](https://github.com/your-username/soduko-omega.git)
-   cd soduko-omega
+   git clone https://github.com/Ushan256/neon-sudoku.git
+   cd neon-sudoku
    ```
-2. **Clone the Repository**
+
+2. **Install dependencies**
    ```bash
    npm install
    ```
-3. **Clone the Repository**
+
+3. **Start development server**
    ```bash
    npm start
    ```
+
+4. **Build for production**
+   ```bash
+   npm run build
+   ```
+
+The app connects to the Hugging Face backend automatically. No local backend setup is required.
+
 ---
 
 ## 🚀 Future Roadmap
-- [ ] **Multiplayer Battles**: Real-time PvP Sudoku using WebSockets for global competition.
-- [ ] **OCR Neural Scanner**: Utilizing Computer Vision (OpenCV) to allow solving physical Sudokus via camera upload.
-- [ ] **Edge Inference**: Porting the model to **TensorFlow.js** for 100% offline, client-side AI solving.
+
+- [ ] **Multiplayer Battles** — Real-time PvP Sudoku via WebSockets.
+- [ ] **OCR Neural Scanner** — Solve physical Sudoku puzzles via camera upload using OpenCV.
+- [ ] **Edge Inference** — Port the model to TensorFlow.js for fully offline, client-side AI solving.
 
 ---
 
 ### 👤 Contact & Support
-- **Developed by**: Ushan
-- **Program**: BS Computer Science (5th Semester AI Project)
-- **Focus**: Artificial Intelligence, Deep Learning Architectures, and Full-Stack Game Development
+
+- **Developed by**: Ushan Baig
+- **Program**: BS Computer Science — 5th Semester AI Project
+- **Focus**: Artificial Intelligence, Deep Learning, Full-Stack Development
 - **Live Site**: [https://neon-sudoku-omega.vercel.app/](https://neon-sudoku-omega.vercel.app/)
 
 ---
 
 <div align="center">
 
-**⚠️ Research Disclaimer**: This is an AI-powered prototype developed for educational and sustainability research purposes.
+**⚠️ Research Disclaimer**: Developed for educational purposes as an undergraduate AI project.
 
-Made with ❤️ for advancing environmental and logic-based AI research
+Made with ❤️ for advancing logic-based AI research.
 
 </div>
